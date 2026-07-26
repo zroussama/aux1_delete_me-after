@@ -201,9 +201,10 @@ export const ReportModal: React.FC<ReportModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-colors"
+              className="flex-1 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-colors flex flex-col items-center justify-center leading-tight"
             >
-              Annuler
+              <span>Annuler</span>
+              <span className="text-[9px] font-normal text-slate-400">إلغاء</span>
             </button>
             <button
               type="submit"
@@ -215,11 +216,14 @@ export const ReportModal: React.FC<ReportModalProps> = ({
               }`}
             >
               {isSubmitting ? (
-                <span>Validation en cours...</span>
+                <span>Validation...</span>
               ) : (
                 <>
-                  <Send className="w-4 h-4" />
-                  <span>Envoyer Signalement</span>
+                  <Send className="w-4 h-4 shrink-0" />
+                  <div className="flex flex-col items-center leading-tight text-center">
+                    <span>Envoyer Signalement</span>
+                    <span className="text-[9px] font-medium opacity-90">إرسال البلاغ</span>
+                  </div>
                 </>
               )}
             </button>

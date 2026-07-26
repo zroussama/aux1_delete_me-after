@@ -142,7 +142,7 @@ export const MobileZoneList: React.FC<MobileZoneListProps> = ({
   const governorateOptions = Array.from(new Set(delegations.map(d => d.governorate))).sort();
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-3 sm:px-4 py-4 space-y-4 pb-24">
+    <div className="h-full overflow-y-auto w-full max-w-3xl mx-auto px-3 sm:px-4 py-4 space-y-4 pb-24">
       {/* Community Info Box (Famma-Dhaw style explanation) */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2 text-xs">
         <div className="flex items-center justify-between">
@@ -151,10 +151,13 @@ export const MobileZoneList: React.FC<MobileZoneListProps> = ({
           </h2>
           <button
             onClick={onOpenZoneSelection}
-            className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 font-bold transition-all flex items-center gap-1 text-[11px]"
+            className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 font-bold transition-all flex items-center gap-1.5 text-[11px]"
           >
-            <Shield className="w-3.5 h-3.5 text-amber-400" />
-            <span>{userSession?.delegationName ? `Zone: ${userSession.delegationName}` : 'Changer ma zone'}</span>
+            <Shield className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <div className="flex flex-col items-center leading-tight">
+              <span>{userSession?.delegationName ? `Zone: ${userSession.delegationName}` : 'Changer ma zone'}</span>
+              <span className="text-[9px] font-normal opacity-80">تغيير المنطقة</span>
+            </div>
           </button>
         </div>
         <p className="text-slate-300 leading-relaxed">
@@ -334,7 +337,10 @@ export const MobileZoneList: React.FC<MobileZoneListProps> = ({
                         }`}
                       >
                         <Zap className="w-4 h-4 fill-white shrink-0" />
-                        <span>🔌 Pas de lumière</span>
+                        <div className="flex flex-col items-center leading-tight text-center">
+                          <span>🔌 Pas de lumière</span>
+                          <span className="text-[9px] font-medium text-white/90">انقطاع الكهرباء</span>
+                        </div>
                       </button>
 
                       <button
@@ -347,7 +353,10 @@ export const MobileZoneList: React.FC<MobileZoneListProps> = ({
                         }`}
                       >
                         <Zap className="w-4 h-4 fill-slate-950 shrink-0" />
-                        <span>💡 J'ai la lumière</span>
+                        <div className="flex flex-col items-center leading-tight text-center">
+                          <span>💡 J'ai la lumière</span>
+                          <span className="text-[9px] font-medium text-slate-950/90">الكهرباء متوفرة</span>
+                        </div>
                       </button>
                     </div>
 

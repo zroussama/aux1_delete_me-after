@@ -733,29 +733,21 @@ export const PowerMap: React.FC<PowerMapProps> = ({
         )}
       </div>
 
-      {/* Floating Action Buttons (Bottom Right) */}
-      <div className="absolute bottom-6 right-6 z-20 flex flex-col gap-2">
-        {userLocation && (
-          <button
-            onClick={() => {
-              if (mapInstanceRef.current && userLocation) {
-                mapInstanceRef.current.flyTo(userLocation, 14, { duration: 1.2 });
-              }
-            }}
-            className="p-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-2xl shadow-2xl transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-1.5 text-xs"
-            title="Focus sur Ma Zone 📍"
-          >
-            <MapPin className="w-4 h-4 fill-slate-950" />
-            <span className="hidden sm:inline">Ma Zone</span>
-          </button>
-        )}
-
+      {/* Floating Action Button (Bottom Right) */}
+      <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 z-20">
         <button
-          onClick={onLocateMe}
-          className="p-3.5 bg-slate-900/90 hover:bg-slate-800 text-blue-400 rounded-2xl border border-slate-700/80 shadow-2xl transition-all hover:scale-105 active:scale-95 flex items-center justify-center group"
-          title="Ma Position GPS"
+          onClick={() => {
+            if (userLocation && mapInstanceRef.current) {
+              mapInstanceRef.current.flyTo(userLocation, 14, { duration: 1.2 });
+            } else {
+              onLocateMe();
+            }
+          }}
+          className="px-3.5 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-2xl shadow-2xl transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2 text-xs border border-amber-300/40"
+          title="Centrer sur ma position GPS 📍"
         >
-          <Crosshair className="w-5 h-5 group-hover:rotate-45 transition-transform" />
+          <MapPin className="w-4 h-4 fill-slate-950 shrink-0" />
+          <span className="font-extrabold">Ma Zone GPS</span>
         </button>
       </div>
 

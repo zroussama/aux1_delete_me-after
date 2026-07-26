@@ -10,7 +10,9 @@ import {
   AlertTriangle,
   Share2,
   HelpCircle,
-  ShieldAlert
+  ShieldAlert,
+  Menu,
+  X
 } from 'lucide-react';
 import { AudioLanguage, NationalGridStats } from '../types';
 
@@ -21,7 +23,7 @@ interface HeaderBarProps {
   activeLanguage: AudioLanguage;
   onLanguageChange: (lang: AudioLanguage) => void;
   onOpenAiAnalyst: () => void;
-  onOpenConsensus: () => void;
+  onOpenConsensus?: () => void;
   onOpenReportModal: () => void;
   onOpenAudioTest: () => void;
   onOpenHowItWorks?: () => void;
@@ -48,6 +50,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   canInstallPwa
 }) => {
   const [localTime, setLocalTime] = useState<string>('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const updateTime = () => {
@@ -60,28 +63,29 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 shadow-xl">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex items-center justify-between gap-3">
+    <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-xl shrink-0">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2 flex items-center justify-between gap-2">
         {/* Logo & Brand */}
-        <div className="flex items-center gap-3">
-          <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-red-600 shadow-lg shadow-amber-500/20 text-slate-950 font-black">
-            <Zap className="w-6 h-6 text-slate-950 fill-amber-300 animate-pulse" />
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-slate-900" />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 shrink-0">
+            <img src="/logo.svg" alt="DhawTN Logo" className="w-9 h-9 sm:w-10 sm:h-10 object-contain drop-shadow-md" />
+            <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-slate-900" title="En direct" />
           </div>
 
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-base sm:text-lg font-extrabold tracking-tight text-slate-100 flex items-center gap-1.5">
-                <span>Tunisia Power Grid</span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 font-semibold hidden sm:inline-block">
+            <div className="flex items-center gap-1.5">
+              <h1 className="text-sm sm:text-lg font-extrabold tracking-tight text-slate-100 flex items-center gap-1.5">
+                <span>DhawTN</span>
+                <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 font-semibold hidden sm:inline-block">
                   STEG Tracker
                 </span>
               </h1>
             </div>
-            <p className="text-xs text-slate-400 flex items-center gap-1.5">
-              <span>Suivi Réseau & Pannes Tunisie</span>
-              <span className="text-slate-600">•</span>
-              <span className="font-mono text-slate-300 text-[11px]">{localTime}</span>
+            <p className="text-[10px] sm:text-xs text-slate-400 flex items-center gap-1">
+              <span className="hidden sm:inline">Suivi Réseau Tunisie</span>
+              <span className="sm:hidden font-mono text-slate-300 text-[10px]">{localTime}</span>
+              <span className="hidden sm:inline text-slate-600">•</span>
+              <span className="hidden sm:inline font-mono text-slate-300 text-[11px]">{localTime}</span>
             </p>
           </div>
         </div>
@@ -108,164 +112,143 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
 
         {/* Action Controls & Utilities */}
         <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Audio Alert Language Selector */}
-          <div className="relative flex items-center bg-slate-800/80 rounded-lg p-0.5 border border-slate-700">
+          {/* Desktop Auxiliary Buttons */}
+          <div className="hidden md:flex items-center gap-1.5">
+            {/* Test Audio Alert Button */}
             <button
-              onClick={() => onLanguageChange('AR_TN')}
-              title="Alerte Vocale en Darija Tunisienne (الضو رجع)"
-              className={`px-2 py-1 text-xs font-bold rounded-md transition-all ${
-                activeLanguage === 'AR_TN'
-                  ? 'bg-amber-500 text-slate-950 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
+              onClick={onOpenAudioTest}
+              title="Tester le signal sonore et vocal"
+              className="p-2 sm:px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700/80 transition-colors flex items-center gap-1.5"
             >
-              🇹🇳 الضو
+              <Volume2 className="w-4 h-4" />
+              <span className="text-xs font-bold">Audio</span>
             </button>
-            <button
-              onClick={() => onLanguageChange('FR')}
-              title="Alerte Vocale en Français"
-              className={`px-2 py-1 text-xs font-bold rounded-md transition-all ${
-                activeLanguage === 'FR'
-                  ? 'bg-amber-500 text-slate-950 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              🇫🇷 FR
-            </button>
-            <button
-              onClick={() => onLanguageChange('EN')}
-              title="Alerte Vocale en Anglais"
-              className={`px-2 py-1 text-xs font-bold rounded-md transition-all ${
-                activeLanguage === 'EN'
-                  ? 'bg-amber-500 text-slate-950 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              🇬🇧 EN
-            </button>
-          </div>
 
-          {/* Test Audio Alert Button */}
-          <button
-            onClick={onOpenAudioTest}
-            title="Tester le signal sonore et vocal de rétablissement (الضو رجع)"
-            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700/80 transition-colors"
-          >
-            <Volume2 className="w-4 h-4" />
-          </button>
-
-          {/* Consensus Engine Info */}
-          <button
-            onClick={onOpenConsensus}
-            title="Moteur de Consensus & Anti-Spam"
-            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/80 transition-colors hidden sm:flex items-center gap-1.5 text-xs font-medium"
-          >
-            <Sliders className="w-4 h-4 text-cyan-400" />
-            <span className="hidden md:inline">Consensus</span>
-          </button>
-
-          {/* Gemini AI Grid Analyst */}
-          <button
-            onClick={onOpenAiAnalyst}
-            className="px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-cyan-600/20 to-blue-600/20 hover:from-cyan-600/30 hover:to-blue-600/30 text-cyan-300 border border-cyan-500/30 transition-all flex items-center gap-1.5 text-xs font-semibold"
-          >
-            <Bot className="w-4 h-4 text-cyan-400" />
-            <span className="hidden sm:inline">IA Diagnostic</span>
-          </button>
-
-          {/* Offline / Online Status Indicator */}
-          <div className="flex items-center">
-            {isOnline ? (
-              <div
-                className="flex items-center gap-1 text-[11px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-md border border-emerald-500/20"
-                title="Connecté au serveur en temps réel"
+            {/* How It Works Modal Info Button */}
+            {onOpenHowItWorks && (
+              <button
+                onClick={onOpenHowItWorks}
+                className="p-2 sm:px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700/80 transition-colors flex items-center gap-1.5"
+                title="DhawTN — Aide & Fonctionnement"
               >
-                <Wifi className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="hidden sm:inline">En Ligne</span>
-              </div>
-            ) : (
-              <div
-                className="flex items-center gap-1 text-[11px] font-medium text-amber-400 bg-amber-500/10 px-2 py-1 rounded-md border border-amber-500/20"
-                title="Mode Hors-Ligne PWA - Les signalements seront synchronisés automatiquement"
-              >
-                <WifiOff className="w-3.5 h-3.5 text-amber-400" />
-                <span className="hidden sm:inline">Hors-Ligne ({offlineQueueCount})</span>
-              </div>
+                <HelpCircle className="w-4 h-4" />
+                <span className="text-xs font-bold">Aide</span>
+              </button>
             )}
+
+            {/* Admin STEG Modal Button */}
+            {onOpenAdminSTEG && (
+              <button
+                onClick={onOpenAdminSTEG}
+                className="p-2 sm:px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-red-400 border border-slate-700/80 transition-colors flex items-center gap-1.5"
+                title="Panneau Admin STEG"
+              >
+                <ShieldAlert className="w-4 h-4" />
+                <span className="text-xs font-bold">Admin STEG</span>
+              </button>
+            )}
+
+            {/* Share CTA Button */}
+            <button
+              onClick={() => {
+                if (onOpenShareModal) {
+                  onOpenShareModal();
+                } else if (navigator.share) {
+                  navigator.share({
+                    title: 'DhawTN - Suivi Réseau Tunisie',
+                    text: '⚡ Suivi en temps réel des pannes d\'électricité et rétablissements en Tunisie pendant la canicule. Signale la lumière dans ta zone!',
+                    url: window.location.href,
+                  }).catch(() => {});
+                } else {
+                  navigator.clipboard.writeText(window.location.href);
+                  alert('Lien copié dans le presse-papier!');
+                }
+              }}
+              className="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold text-xs transition-all flex items-center gap-1.5 shadow-md shadow-emerald-500/20"
+              title="Partager"
+            >
+              <Share2 className="w-4 h-4 shrink-0" />
+              <span className="text-xs font-bold">Partager</span>
+            </button>
           </div>
 
-          {/* PWA Install Button */}
-          {canInstallPwa && onInstallPwa && (
-            <button
-              onClick={onInstallPwa}
-              className="p-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold text-xs transition-colors flex items-center gap-1 shadow-lg shadow-emerald-500/20"
-              title="Installer la PWA Tunisie Power Grid"
-            >
-              <Download className="w-4 h-4" />
-            </button>
-          )}
-
-          {/* How It Works Modal Info Button */}
-          {onOpenHowItWorks && (
-            <button
-              onClick={onOpenHowItWorks}
-              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700/80 transition-colors"
-              title="C'est quoi & Comment ça marche ?"
-            >
-              <HelpCircle className="w-4 h-4" />
-            </button>
-          )}
-
-          {/* Admin STEG Modal Button */}
-          {onOpenAdminSTEG && (
-            <button
-              onClick={onOpenAdminSTEG}
-              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-red-400 border border-slate-700/80 transition-colors"
-              title="Panneau Admin STEG (Avis Officiels)"
-            >
-              <ShieldAlert className="w-4 h-4" />
-            </button>
-          )}
-
-          {/* Share CTA Button */}
-          <button
-            onClick={() => {
-              if (onOpenShareModal) {
-                onOpenShareModal();
-              } else if (navigator.share) {
-                navigator.share({
-                  title: 'Tunisie Power Grid - Famma Dhaw',
-                  text: '⚡ Suivi en temps réel des pannes d\'électricité et rétablissements en Tunisie pendant la canicule. Signale la lumière dans ta zone!',
-                  url: window.location.href,
-                }).catch(() => {});
-              } else {
-                navigator.clipboard.writeText(window.location.href);
-                alert('Lien copié dans le presse-papier! Partagez avec vos voisins.');
-              }
-            }}
-            className="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold text-xs transition-all flex items-center gap-1 shadow-md shadow-emerald-500/20"
-            title="Partager le tableau de bord communautaire"
-          >
-            <Share2 className="w-4 h-4" />
-            <span className="hidden sm:inline">Partager</span>
-          </button>
-
-          {/* Primary Action Button: Signalement Panne */}
+          {/* Primary Action Button: Signalement Panne (Always visible) */}
           <button
             onClick={onOpenReportModal}
-            className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-bold text-xs shadow-lg shadow-red-600/25 transition-all flex items-center gap-1.5 border border-red-400/30"
+            className="px-2.5 sm:px-3 py-1.5 rounded-lg bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-bold text-xs shadow-lg shadow-red-600/25 transition-all flex items-center gap-1.5 border border-red-400/30"
           >
-            <Zap className="w-4 h-4 fill-white" />
-            <span>Signaler Panne</span>
+            <Zap className="w-4 h-4 fill-white shrink-0" />
+            <div className="flex flex-col items-center text-center leading-tight">
+              <span className="text-xs font-extrabold">Signaler Panne</span>
+            </div>
+          </button>
+
+          {/* Mobile Menu Toggle Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-1.5 rounded-lg bg-slate-800 text-slate-200 border border-slate-700/80 md:hidden flex items-center justify-center"
+            aria-label="Menu Mobile"
+          >
+            {isMobileMenuOpen ? <X className="w-5 h-5 text-amber-400" /> : <Menu className="w-5 h-5 text-slate-300" />}
           </button>
         </div>
       </div>
 
-      {/* STEG Community Disclaimer Bar */}
-      <div className="bg-slate-950 border-t border-slate-800/80 px-3 py-1 text-center text-[11px] text-amber-400/90 font-medium flex items-center justify-center gap-1.5">
-        <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-        <span>Données communautaires non officielles · Croisez avec les communiqués officiels STEG</span>
-      </div>
+      {/* Mobile Menu Slide-Down */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-slate-950 border-t border-slate-800 p-3 space-y-2 animate-fade-in">
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <button
+              onClick={() => {
+                onOpenAudioTest();
+                setIsMobileMenuOpen(false);
+              }}
+              className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-amber-400 font-bold flex items-center gap-2"
+            >
+              <Volume2 className="w-4 h-4" />
+              <span>Tester Audio</span>
+            </button>
+
+            {onOpenHowItWorks && (
+              <button
+                onClick={() => {
+                  onOpenHowItWorks();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-amber-400 font-bold flex items-center gap-2"
+              >
+                <HelpCircle className="w-4 h-4" />
+                <span>Aide DhawTN</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => {
+                if (onOpenShareModal) onOpenShareModal();
+                setIsMobileMenuOpen(false);
+              }}
+              className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-emerald-400 font-bold flex items-center gap-2 col-span-2 sm:col-span-1"
+            >
+              <Share2 className="w-4 h-4" />
+              <span>Partager l'App</span>
+            </button>
+
+            {onOpenAdminSTEG && (
+              <button
+                onClick={() => {
+                  onOpenAdminSTEG();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-red-400 font-bold flex items-center gap-2 col-span-2 sm:col-span-1"
+              >
+                <ShieldAlert className="w-4 h-4" />
+                <span>Admin STEG</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 };
+

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Search, MapPin, Check, Shield } from 'lucide-react';
+import { X, Search, MapPin, Check, Shield, Navigation, Map } from 'lucide-react';
 import { Delegation } from '../types';
 import { userZoneService } from '../services/userZoneService';
 
@@ -8,16 +8,20 @@ interface ZoneSelectionModalProps {
   onClose: () => void;
   delegations: Delegation[];
   onZoneSelected: (delegation: Delegation) => void;
+  onSelectOnMap?: () => void;
 }
 
 export const ZoneSelectionModal: React.FC<ZoneSelectionModalProps> = ({
   isOpen,
   onClose,
   delegations,
-  onZoneSelected
+  onZoneSelected,
+  onSelectOnMap
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedZoneId, setSelectedZoneId] = useState<number | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationStatusMsg, setLocationStatusMsg] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -28,6 +32,38 @@ export const ZoneSelectionModal: React.FC<ZoneSelectionModalProps> = ({
 
   const handleSelect = (delegation: Delegation) => {
     setSelectedZoneId(delegation.id);
+  };
+
+  const handleRequestGpsLocation = () => {
+    if (!('geolocation' in navigator)) {
+      setLocationStatusMsg("La géolocalisation n'est pas supportée. Veuillez choisir dans la liste ci-dessous.");
+      return;
+    }
+
+    setIsLocating(true);
+    setLocationStatusMsg("Demande de localisation GPS en cours...");
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setIsLocating(false);
+        const { latitude, longitude } = position.coords;
+        const matchedDelegation = userZoneService.findDelegationByLocation(latitude, longitude, delegations);
+
+        if (matchedDelegation) {
+          userZoneService.setUserZone(matchedDelegation.id, delegations);
+          onZoneSelected(matchedDelegation);
+          onClose();
+        } else {
+          setLocationStatusMsg("Position GPS reçue mais aucune zone correspondante. Choisissez dans la liste.");
+        }
+      },
+      (error) => {
+        setIsLocating(false);
+        console.warn("Geolocation error:", error);
+        setLocationStatusMsg("Accès géolocalisation refusé ou indisponible. Vous pouvez choisir sur la carte ou dans la liste.");
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
   };
 
   const handleConfirm = () => {
@@ -60,6 +96,45 @@ export const ZoneSelectionModal: React.FC<ZoneSelectionModalProps> = ({
           >
             <X className="w-5 h-5" />
           </button>
+        </div>
+
+        {/* GPS Quick Action */}
+        <div className="p-4 bg-slate-950/40 border-b border-slate-800 space-y-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <button
+              onClick={handleRequestGpsLocation}
+              disabled={isLocating}
+              className="w-full py-2.5 px-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs transition-all flex items-center justify-center gap-2 shadow-md shadow-amber-500/20"
+            >
+              <Navigation className={`w-4 h-4 ${isLocating ? 'animate-spin' : ''}`} />
+              <div className="flex flex-col items-center leading-tight">
+                <span>{isLocating ? "Localisation..." : "Position GPS"}</span>
+                <span className="text-[9px] font-bold opacity-85">تحديد موقعي التلقائي</span>
+              </div>
+            </button>
+
+            {onSelectOnMap && (
+              <button
+                onClick={() => {
+                  onClose();
+                  onSelectOnMap();
+                }}
+                className="w-full py-2.5 px-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-extrabold text-xs transition-all flex items-center justify-center gap-2 border border-slate-700"
+              >
+                <Map className="w-4 h-4 text-amber-400" />
+                <div className="flex flex-col items-center leading-tight">
+                  <span>Sur la Carte</span>
+                  <span className="text-[9px] font-bold opacity-80 text-amber-300">تحديد على الخريطة</span>
+                </div>
+              </button>
+            )}
+          </div>
+
+          {locationStatusMsg && (
+            <p className="text-[11px] text-amber-300 bg-amber-500/10 p-2 rounded-xl border border-amber-500/20 text-center">
+              {locationStatusMsg}
+            </p>
+          )}
         </div>
 
         {/* Search */}
@@ -134,3 +209,4 @@ export const ZoneSelectionModal: React.FC<ZoneSelectionModalProps> = ({
     </div>
   );
 };
+

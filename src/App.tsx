@@ -21,6 +21,7 @@ import { ConsensusDashboard } from './components/ConsensusDashboard';
 import { AiGridAnalystModal } from './components/AiGridAnalystModal';
 import { AudioTestControl } from './components/AudioTestControl';
 import { PWAInstallBanner } from './components/PWAInstallBanner';
+import { LiveWallStreetTicker } from './components/LiveWallStreetTicker';
 import { audioAlertService } from './services/audioAlertService';
 import { offlineStorage } from './services/offlineStorage';
 import { userZoneService, UserSession } from './services/userZoneService';
@@ -37,8 +38,8 @@ export default function App() {
   const [reports, setReports] = useState<OutageReport[]>([]);
   const [stats, setStats] = useState<NationalGridStats | null>(null);
 
-  // Active View Tab (LIST = famma-dhaw fast list view, MAP = interactive map)
-  const [activeTab, setActiveTab] = useState<'LIST' | 'MAP'>('LIST');
+  // Active View Tab (MAP = primary interactive map view, LIST = fast list view)
+  const [activeTab, setActiveTab] = useState<'LIST' | 'MAP'>('MAP');
 
   // User & Geolocation & Zone State
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
@@ -60,6 +61,7 @@ export default function App() {
   const [isShareModalOpen, setIsShareModalOpen] = useState<boolean>(false);
   const [isHowItWorksOpen, setIsHowItWorksOpen] = useState<boolean>(false);
   const [isAdminStegOpen, setIsAdminStegOpen] = useState<boolean>(false);
+  const [isAdminRoute, setIsAdminRoute] = useState<boolean>(false);
   const [stegAnnouncements, setStegAnnouncements] = useState<STEGAnnouncement[]>([]);
   const [isSubmittingReport, setIsSubmittingReport] = useState<boolean>(false);
 
@@ -167,6 +169,22 @@ export default function App() {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
   }, [fetchGridData, syncOfflineQueue]);
+
+  // Admin route check (/admin or #admin or ?admin=true)
+  useEffect(() => {
+    const checkIsAdmin = () => {
+      const isPathAdmin = window.location.pathname.startsWith('/admin') ||
+                          window.location.hash.includes('admin') ||
+                          window.location.search.includes('admin=true');
+      setIsAdminRoute(isPathAdmin);
+      if (isPathAdmin) {
+        setIsAdminStegOpen(true);
+      }
+    };
+    checkIsAdmin();
+    window.addEventListener('popstate', checkIsAdmin);
+    return () => window.removeEventListener('popstate', checkIsAdmin);
+  }, []);
 
   // Load STEG announcements when delegations are ready & sync affected zones
   useEffect(() => {
@@ -403,7 +421,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans select-none overflow-x-hidden">
+    <div className="h-[100dvh] w-screen bg-slate-950 text-slate-100 flex flex-col font-sans select-none overflow-hidden">
       {/* Header Bar */}
       <HeaderBar
         stats={stats}
@@ -412,45 +430,58 @@ export default function App() {
         activeLanguage={activeLanguage}
         onLanguageChange={setActiveLanguage}
         onOpenAiAnalyst={() => setIsAiAnalystOpen(true)}
-        onOpenConsensus={() => setIsConsensusOpen(true)}
         onOpenReportModal={() => setIsReportModalOpen(true)}
         onOpenAudioTest={() => setIsAudioTestOpen(true)}
         onOpenHowItWorks={() => setIsHowItWorksOpen(true)}
         onOpenShareModal={() => setIsShareModalOpen(true)}
-        onOpenAdminSTEG={() => setIsAdminStegOpen(true)}
+        onOpenAdminSTEG={isAdminRoute ? () => setIsAdminStegOpen(true) : undefined}
         onInstallPwa={handleInstallPwa}
         canInstallPwa={!!deferredPrompt}
       />
 
-      {/* Primary Mobile View Tab Switcher Bar */}
-      <div className="bg-slate-900 border-b border-slate-800 px-3 py-2 flex items-center justify-center gap-2 z-20">
-        <button
-          onClick={() => setActiveTab('LIST')}
-          className={`flex-1 max-w-xs py-2 px-4 rounded-xl font-black text-xs transition-all flex items-center justify-center gap-2 ${
-            activeTab === 'LIST'
-              ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20'
-              : 'bg-slate-950 text-slate-400 border border-slate-800 hover:text-slate-200'
-          }`}
-        >
-          <List className="w-4 h-4" />
-          <span>📋 Signalements 1-Tap</span>
-        </button>
+      {/* Wall Street Live News Ticker Tape & Disclaimer */}
+      <LiveWallStreetTicker
+        reports={reports}
+        delegations={delegations}
+        announcements={stegAnnouncements}
+        stats={stats}
+        onSelectDelegation={(del) => {
+          setSelectedDelegation(del);
+          setActiveTab('MAP');
+        }}
+      />
 
-        <button
-          onClick={() => setActiveTab('MAP')}
-          className={`flex-1 max-w-xs py-2 px-4 rounded-xl font-black text-xs transition-all flex items-center justify-center gap-2 ${
-            activeTab === 'MAP'
-              ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20'
-              : 'bg-slate-950 text-slate-400 border border-slate-800 hover:text-slate-200'
-          }`}
-        >
-          <Map className="w-4 h-4" />
-          <span>🗺️ Carte du Réseau</span>
-        </button>
+      {/* Primary View Tab Switcher Bar */}
+      <div className="bg-slate-900/95 border-b border-slate-800 px-3 py-1.5 flex items-center justify-center z-20 shrink-0">
+        <div className="bg-slate-950 p-1 rounded-2xl border border-slate-800/80 flex items-center gap-1 max-w-md w-full shadow-inner">
+          <button
+            onClick={() => setActiveTab('MAP')}
+            className={`flex-1 py-1.5 px-3 rounded-xl font-extrabold text-xs transition-all flex items-center justify-center gap-2 ${
+              activeTab === 'MAP'
+                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/25 scale-[1.01]'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+            }`}
+          >
+            <Map className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">Carte du Réseau</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('LIST')}
+            className={`flex-1 py-1.5 px-3 rounded-xl font-extrabold text-xs transition-all flex items-center justify-center gap-2 ${
+              activeTab === 'LIST'
+                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/25 scale-[1.01]'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+            }`}
+          >
+            <List className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">Signalements 1-Tap</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Content Area */}
-      <main className="flex-1 relative flex flex-col">
+      <main className="flex-1 min-h-0 relative flex flex-col overflow-hidden">
         {activeTab === 'LIST' ? (
           <MobileZoneList
             delegations={delegations}
@@ -512,6 +543,7 @@ export default function App() {
           setUserSession(userZoneService.getUserSession());
           fetchGridData();
         }}
+        onSelectOnMap={() => setActiveTab('MAP')}
       />
 
       {/* Report Modal */}
@@ -523,14 +555,6 @@ export default function App() {
         delegations={delegations}
         isOnline={isOnline}
         isSubmitting={isSubmittingReport}
-      />
-
-      {/* Consensus Dashboard Modal */}
-      <ConsensusDashboard
-        isOpen={isConsensusOpen}
-        onClose={() => setIsConsensusOpen(false)}
-        delegations={delegations}
-        onSimulateOutage={handleSimulateOutage}
       />
 
       {/* Gemini AI Grid Analyst Modal */}

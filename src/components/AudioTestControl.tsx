@@ -86,7 +86,7 @@ export const AudioTestControl: React.FC<AudioTestControlProps> = ({
             >
               <div>
                 <p className="text-xs font-black text-amber-400">🇹🇳 Darija Tunisienne (الدارجة التونسية)</p>
-                <p className="text-sm font-bold text-slate-100 mt-1">"الضو رجع! الحمد لله، رجع التيار الكهربائي"</p>
+                <p className="text-sm font-bold text-slate-100 mt-1">"الضو رجع! الحمد لله، رجع الضو"</p>
               </div>
               <div className="p-2 rounded-xl bg-amber-500/20 text-amber-300">
                 <Play className="w-4 h-4 fill-amber-300" />

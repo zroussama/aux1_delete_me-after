@@ -13,7 +13,7 @@ export const ViralShareModal: React.FC<ViralShareModalProps> = ({ isOpen, onClos
   if (!isOpen) return null;
 
   const appUrl = window.location.origin;
-  const shareText = `🔌💡 Réseau Électrique Tunisie (فمّا ضو؟ / Famma Dhaw?): Consultez et signalez l'état de l'électricité dans votre zone pendant la canicule! ${statsText ? `\n${statsText}` : ''}\n👉 Participez et vérifiez votre quartier ici: ${appUrl}`;
+  const shareText = `🔌💡 Suivi Réseau Électrique Tunisie (DhawTN): Consultez et signalez l'état de l'électricité dans votre zone pendant la canicule! ${statsText ? `\n${statsText}` : ''}\n👉 Participez et vérifiez votre quartier ici: ${appUrl}`;
 
   const encodedText = encodeURIComponent(shareText);
   const encodedUrl = encodeURIComponent(appUrl);

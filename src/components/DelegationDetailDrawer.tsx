@@ -230,8 +230,11 @@ export const DelegationDetailDrawer: React.FC<DelegationDetailDrawerProps> = ({
           onClick={() => onReportForDelegation(delegation)}
           className="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-red-600 hover:from-amber-400 hover:to-red-500 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 transition-all"
         >
-          <Zap className="w-4 h-4 fill-slate-950" />
-          <span>Signaler dans la délégation {delegation.name}</span>
+          <Zap className="w-4 h-4 fill-slate-950 shrink-0" />
+          <div className="flex flex-col items-center leading-tight text-center">
+            <span>Signaler dans la délégation {delegation.name}</span>
+            <span className="text-[9px] font-bold text-slate-950/80">الإبلاغ في معتمدية {delegation.name}</span>
+          </div>
         </button>
       </div>
     </div>

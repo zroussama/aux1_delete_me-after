@@ -84,7 +84,7 @@ class AudioAlertService {
       case 'AR_TN':
         return {
           title: 'الضو رجع!',
-          speech: `الضو رجع! الحمد لله، رجع التيار الكهربائي في منطقة ${nameStr || 'منطقتكم'}.`
+          speech: `الضو رجع! الحمد لله، رجع الضو في منطقة ${nameStr || 'منطقتكم'}.`
         };
       case 'FR':
         return {

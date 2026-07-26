@@ -10,11 +10,11 @@ export const PWAInstallBanner: React.FC<PWAInstallBannerProps> = ({ onInstall, o
   return (
     <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:w-96 z-40 bg-slate-900/95 backdrop-blur-xl border border-amber-500/30 rounded-2xl p-4 shadow-2xl text-slate-100 flex items-center justify-between gap-3 animate-slide-up">
       <div className="flex items-center gap-3">
-        <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-400 shrink-0">
-          <Zap className="w-6 h-6 fill-amber-400" />
+        <div className="p-1.5 rounded-xl bg-slate-950 border border-slate-800 shrink-0">
+          <img src="/logo.svg" alt="DhawTN Logo" className="w-7 h-7 object-contain" />
         </div>
         <div>
-          <h4 className="text-xs font-bold text-slate-100">Installer Tunisie Power Grid</h4>
+          <h4 className="text-xs font-bold text-slate-100">Installer DhawTN</h4>
           <p className="text-[11px] text-slate-400">Accès hors-ligne PWA & notifications en direct</p>
         </div>
       </div>

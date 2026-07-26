@@ -19,7 +19,7 @@ export const HowItWorksModal: React.FC<HowItWorksModalProps> = ({ isOpen, onClos
               <Info className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-base font-black text-slate-100">فمّا ضو؟ — C'est quoi & Comment ça marche ?</h3>
+              <h3 className="text-base font-black text-slate-100">DhawTN — C'est quoi & Comment ça marche ?</h3>
               <p className="text-xs text-slate-400">Suivi citoyen du réseau électrique en Tunisie</p>
             </div>
           </div>
