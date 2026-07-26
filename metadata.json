@@ -1,0 +1,10 @@
+{
+  "name": "Tunisia Power Grid Tracker",
+  "description": "Real-time crowdsourced electricity outage map and power grid monitor for Tunisia with spatial consensus, OSM high-voltage grid layers, and restoration audio alerts.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
