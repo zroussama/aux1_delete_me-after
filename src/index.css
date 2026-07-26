@@ -26,14 +26,10 @@
   }
 }
 
-.steg-ping-marker {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
 .steg-ping-dot {
+  position: absolute;
+  top: 5px;
+  left: 5px;
   width: 14px;
   height: 14px;
   background-color: #ef4444;
@@ -46,6 +42,8 @@
 
 .steg-ping-ring {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 24px;
   height: 24px;
   border-radius: 50%;
@@ -53,4 +51,12 @@
   background: rgba(239, 68, 68, 0.25);
   animation: steg-radar-ping 2s infinite cubic-bezier(0, 0.2, 0.8, 1);
   z-index: 1;
+}
+
+.user-location-badge-pin,
+.steg-ping-marker,
+.custom-powerplant-icon,
+.report-pin-icon {
+  background: transparent !important;
+  border: none !important;
 }

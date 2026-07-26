@@ -59,7 +59,6 @@ export const PowerMap: React.FC<PowerMapProps> = ({
     const map = mapInstanceRef.current;
     if (!map) return;
 
-    map.invalidateSize();
     const affectedDels = delegations.filter(d => stegAffectedIds.has(d.id));
     if (affectedDels.length > 0) {
       const bounds = L.latLngBounds([]);
@@ -70,14 +69,16 @@ export const PowerMap: React.FC<PowerMapProps> = ({
         }
       });
       if (bounds.isValid()) {
-        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12, animate: true, duration: 1.2 });
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12, animate: true, duration: 1 });
       }
     }
   };
 
-  // Automatically fly/fit to STEG cut zones if newly added
+  // Automatically fly/fit to STEG cut zones ONCE when announcements are first loaded
+  const hasAutoFocusedStegRef = useRef<boolean>(false);
   useEffect(() => {
-    if (stegAffectedIds.size > 0 && mapInstanceRef.current) {
+    if (stegAnnouncements.length > 0 && mapInstanceRef.current && !hasAutoFocusedStegRef.current) {
+      hasAutoFocusedStegRef.current = true;
       handleFocusStegZones();
     }
   }, [stegAnnouncements.length]);
@@ -98,7 +99,7 @@ export const PowerMap: React.FC<PowerMapProps> = ({
   const [showMicroZones, setShowMicroZones] = useState<boolean>(true);
   const [showHvGrid, setShowHvGrid] = useState<boolean>(true);
   const [showPowerPlants, setShowPowerPlants] = useState<boolean>(true);
-  const [showDelegations, setShowDelegations] = useState<boolean>(true);
+  const [showDelegations, setShowDelegations] = useState<boolean>(false);
   const [showReports, setShowReports] = useState<boolean>(true);
   const [isLayerMenuOpen, setIsLayerMenuOpen] = useState<boolean>(false);
 
@@ -111,7 +112,7 @@ export const PowerMap: React.FC<PowerMapProps> = ({
 
     // Default center: User location if present, else Tunisia Center
     const initialCenter = userLocation || TUNISIA_MAP_CENTER;
-    const initialZoom = userLocation ? 13 : TUNISIA_MAP_DEFAULT_ZOOM;
+    const initialZoom = userLocation ? 12 : TUNISIA_MAP_DEFAULT_ZOOM;
 
     const map = L.map(mapContainerRef.current, {
       center: initialCenter,
@@ -144,14 +145,16 @@ export const PowerMap: React.FC<PowerMapProps> = ({
     };
   }, []);
 
-  // Governorate / Location Focus FitBounds Effect
+  // Governorate Focus Effect — triggers ONLY when selectedGovernorate actually changes
+  const prevGovRef = useRef<string>(selectedGovernorate);
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map) return;
 
-    map.invalidateSize();
+    if (selectedGovernorate === prevGovRef.current) return;
+    prevGovRef.current = selectedGovernorate;
+
     if (selectedGovernorate !== 'ALL') {
-      // Filter delegations in selected governorate
       const govDelegations = delegations.filter(
         d => d.governorate.toLowerCase() === selectedGovernorate.toLowerCase()
       );
@@ -166,31 +169,35 @@ export const PowerMap: React.FC<PowerMapProps> = ({
         });
 
         if (bounds.isValid()) {
-          map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13, animate: true, duration: 1.2 });
+          map.fitBounds(bounds, { padding: [40, 40], maxZoom: 12, animate: true, duration: 1 });
         }
       }
-    } else if (userLocation) {
-      // Focus on hyper-local user location
-      map.flyTo(userLocation, 13, { duration: 1.2 });
+    } else {
+      map.flyTo(TUNISIA_MAP_CENTER, TUNISIA_MAP_DEFAULT_ZOOM, { duration: 1 });
     }
-  }, [selectedGovernorate, userLocation, delegations]);
+  }, [selectedGovernorate]);
 
-  // Handle fly/fit to selected delegation
+  // Delegation Focus Effect — triggers ONLY when selectedDelegationId actually changes
+  const prevDelIdRef = useRef<number | null>(selectedDelegationId);
   useEffect(() => {
     const map = mapInstanceRef.current;
-    if (!map || !selectedDelegationId) return;
+    if (!map) return;
 
-    map.invalidateSize();
+    if (selectedDelegationId === prevDelIdRef.current) return;
+    prevDelIdRef.current = selectedDelegationId;
+
+    if (!selectedDelegationId) return;
+
     const targetDel = delegations.find(d => d.id === selectedDelegationId);
     if (targetDel) {
       const polyBounds = L.polygon(targetDel.polygon).getBounds();
       if (polyBounds.isValid()) {
-        map.fitBounds(polyBounds, { padding: [50, 50], maxZoom: 13, animate: true, duration: 1.2 });
+        map.fitBounds(polyBounds, { padding: [50, 50], maxZoom: 12, animate: true, duration: 1 });
       } else {
-        map.flyTo(targetDel.centroid, 13, { duration: 1.2 });
+        map.flyTo(targetDel.centroid, 12, { duration: 1 });
       }
     }
-  }, [selectedDelegationId, delegations]);
+  }, [selectedDelegationId]);
 
   // Render Delegation Boundaries (Subtle & Clean)
   useEffect(() => {
@@ -263,8 +270,10 @@ export const PowerMap: React.FC<PowerMapProps> = ({
         const pingIcon = L.divIcon({
           className: 'steg-ping-marker',
           html: `
-            <div class="steg-ping-ring"></div>
-            <div class="steg-ping-dot"></div>
+            <div style="position: relative; width: 24px; height: 24px;">
+              <div class="steg-ping-ring"></div>
+              <div class="steg-ping-dot"></div>
+            </div>
           `,
           iconSize: [24, 24],
           iconAnchor: [12, 12]
@@ -508,20 +517,23 @@ export const PowerMap: React.FC<PowerMapProps> = ({
         display: flex;
         flex-direction: column;
         align-items: center;
-        transform: translate(-50%, -100%);
+        justify-content: flex-end;
+        width: 160px;
+        height: 48px;
+        pointer-events: none;
       ">
         <div style="
           background: #f59e0b;
           color: #020617;
           font-weight: 900;
           font-size: 10px;
-          padding: 3px 8px;
+          padding: 2px 8px;
           border-radius: 12px;
-          border: 2px solid #ffffff;
-          box-shadow: 0 4px 12px rgba(245, 158, 11, 0.6);
+          border: 1.5px solid #ffffff;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
           font-family: system-ui, sans-serif;
           white-space: nowrap;
-          margin-bottom: 2px;
+          margin-bottom: 4px;
           display: flex;
           align-items: center;
           gap: 3px;
@@ -529,20 +541,20 @@ export const PowerMap: React.FC<PowerMapProps> = ({
           📍 VOTRE ZONE (${zoneName})
         </div>
         <div style="
-          width: 22px;
-          height: 22px;
+          width: 20px;
+          height: 20px;
           border-radius: 50%;
           background: #3b82f6;
           border: 3px solid #ffffff;
-          box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.35);
+          box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.4), 0 0 16px #3b82f6;
         "></div>
       </div>`;
 
       const userIcon = L.divIcon({
         html: iconHtml,
         className: 'user-location-badge-pin',
-        iconSize: [120, 50],
-        iconAnchor: [60, 50]
+        iconSize: [160, 48],
+        iconAnchor: [80, 38]
       });
 
       const marker = L.marker(userLocation, { icon: userIcon });
